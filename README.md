@@ -1,7 +1,8 @@
 You must have PHP, POSTGIS DB, GEOSERVER, UMAP configured and a Telegram Bot.
- 	- DB POSTGIS (http://postgis.net/)
- 	- GeoServer (http://geoserver.org/)
- 	- uMap (https://umap.openstreetmap.fr)
+
+- DB POSTGIS (http://postgis.net/)
+- GeoServer (http://geoserver.org/)
+- uMap (https://umap.openstreetmap.fr)
 
 In localhost is possible to launch
 php start.php 'sethook' to set start.php as webhook
