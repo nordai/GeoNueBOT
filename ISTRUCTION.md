@@ -14,6 +14,7 @@ OPZIONI AVANZATE
 /webservice - servizi di interoperabilità per consultare e scaricare i dati
 
 /manager - funzionalità dedicate per gestione mappe
+/admin - funzionalità dedicate agli amministratori
 
 
 GESTIONE SEGNALAZIONI 
@@ -40,3 +41,9 @@ CREAZIONE E GESTIONE MAPPE
 /offapproved+[idmappa] - disabilita procedura approvazione
 /Alist+[idmappa] - lista segnalazioni da approvare
 /Slist+[idmappa] - lista segnalazioni in sospeso
+
+
+FUNZIONALITA DEDICATE AGLI AMMINISTRATORI
+      
+/listallmap - lista di tutte le mappe del sistema
+/setdefaultmap+[idmappa] - imposta la mappa del bot di default (es: /setdefaultmap1)
