@@ -1,6 +1,6 @@
 You must have PHP, POSTGIS DB, GEOSERVER, UMAP configured and a Telegram Bot.
 
-- DB POSTGIS (http://postgis.net/)
+- POSTGIS (http://postgis.net/)
 - GeoServer (http://geoserver.org/)
 - uMap (https://umap.openstreetmap.fr)
 
