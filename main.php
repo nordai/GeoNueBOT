@@ -94,7 +94,7 @@ class mainloop{
 				$log=$today. ";new chat started;" .$chat_id. "\n";
 				$reply = "Benvenuto. Per inviare una segnalazione, clicca [Invia posizione] dall'icona a forma di graffetta e aspetta una decina di secondi. Quando ricevi la risposta automatica, puoi scrivere un testo descrittivo o allegare un contenuto video foto audio ect.
 				
-Con GeoNueBOT puoi usare più mappe, per vedere la lista di quelle disponibili digita /listmap e attiva quella che preferisci.
+Con GeoNueBOT puoi usare più mappe, per vedere la lista di quelle disponibili digita /maplist e attiva quella che preferisci.
 
 Mappa in uso: ".$id_map.". ".$name_map."
 
@@ -412,7 +412,7 @@ Tutte le info sono sui server Telegram, mentre in un database locale c'è tracci
 			
 			}
 			// lista mappe
-			elseif ($text == "/listmap") {
+			elseif ($text == "/maplist") {
 					
 				$sql =  "SELECT * FROM ". DB_TABLE_MAPS ." WHERE enabled=true AND private=false ORDER BY id_map";
 				
@@ -549,7 +549,7 @@ Tutte le info sono sui server Telegram, mentre in un database locale c'è tracci
 								}
 								else {
 									$reply .= "\nMAPPA NON ATTIVA\n";
-									$reply .= "per attivarla: /enabledmap".$id_map."\n";
+									$reply .= "per attivarla: /enablemap".$id_map."\n";
 								}
 							}
 							
@@ -744,11 +744,11 @@ Tutte le info sono sui server Telegram, mentre in un database locale c'è tracci
 			
 			}
 			// attiva mappa
-			elseif ((substr($text, 0, 11) == "/enabledmap") 
-				&& is_numeric(substr($text, 11)) && is_int(intval(substr($text, 11))) 
-				&& ($this->check_admin($user_id) || $this->check_manager($user_id,substr($text, 11)) || $this->check_user_map($user_id,substr($text, 11)) )) {
+			elseif ((substr($text, 0, 10) == "/enablemap") 
+				&& is_numeric(substr($text, 10)) && is_int(intval(substr($text, 10))) 
+				&& ($this->check_admin($user_id) || $this->check_manager($user_id,substr($text, 10)) || $this->check_user_map($user_id,substr($text, 10)) )) {
 				
-				$map_id = substr($text, 11);
+				$map_id = substr($text, 10);
 					
 				if ($this->check_map($map_id, false)) {
 				
@@ -1141,7 +1141,7 @@ $reply .= "MAPPA ATTIVA NEL BOT
 					}
 					else {
 						$reply .= "\nMAPPA NON ATTIVA\n";
-						$reply .= "per attivarla: /enabledmap".$map[0]."\n";
+						$reply .= "per attivarla: /enablemap".$map[0]."\n";
 					}
 							
 					//check stati segnalazioni mappa
@@ -1309,7 +1309,7 @@ $reply .= "MAPPA ATTIVA NEL BOT
 						   
 						   $reply .= "GESTIONE MAPPA
 							
-/enabledmap".$new_id[0]." - attiva mappa
+/enablemap".$new_id[0]." - attiva mappa
 /disabledmap".$new_id[0]." - disattiva mappa
 /privatemap".$new_id[0]." - la rende privata
 /publicmap".$new_id[0]." - la rende pubblica
@@ -1346,7 +1346,7 @@ OPZIONI AVANZATE
 
 /me - il tuo profilo
 /C+[numero segnalazione] - cancella segnalazione (es: /C001), solo se in stato registrata o sospesa 
-/listmap - lista mappe disponibili
+/maplist - lista mappe disponibili
 /infomap+[idmappa] - informazioni mappa (es: /infomap1)
 /setmap+[idmappa] - imposta mappa da usare (es: /setmap1)
 /alerton - attiva avvisi (nuove mappe, cancellazione mappe etc..)
@@ -1370,7 +1370,7 @@ Alla domanda [APPROVI? Y/N] rispondere Y per si, N per no.
 Per approvazione diretta: 
 /A+numrequest - approva (es: /A001)
 /R+numrequest - respingi (es: /R001)
-/S+numrequest - sospendi (es: /T001)
+/S+numrequest - sospendi (es: /S001)
 /C+numrequest - cancella (es: /C001)
 
 
@@ -1379,7 +1379,7 @@ CREAZIONE E GESTIONE MAPPE
 /mymap - crea mappa personale (una per utente)
 /newmap - crea nuova mappa (solo per profili avanzati)
 
-/enabledmap+[idmappa] - attiva mappa
+/enablemap+[idmappa] - attiva mappa
 /disabledmap+[idmappa] - disattiva mappa
 /privatemap+[idmappa] - rende mappa privata
 /publicmap+[idmappa] - rende mappa pubblica
