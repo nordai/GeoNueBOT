@@ -6,7 +6,7 @@ OPZIONI AVANZATE
 
 /me - il tuo profilo
 /C+[numero segnalazione] - cancella segnalazione (es: /C001), solo se in stato registrata o sospesa 
-/listmap - lista mappe disponibili
+/maplist - lista mappe disponibili
 /infomap+[idmappa] - informazioni mappa (es: /infomap1)
 /setmap+[idmappa] - imposta mappa da usare (es: /setmap1)
 /alerton - attiva avvisi (nuove mappe, cancellazione mappe etc..)
@@ -24,7 +24,7 @@ Alla domanda [APPROVI? Y/N] rispondere Y per si, N per no.
 Per approvazione diretta: 
 /A+numrequest - approva (es: /A001)
 /R+numrequest - respingi (es: /R001)
-/S+numrequest - sospendi (es: /T001)
+/S+numrequest - sospendi (es: /S001)
 /C+numrequest - cancella (es: /C001)
 
 
@@ -33,7 +33,7 @@ CREAZIONE E GESTIONE MAPPE
 /mymap - crea mappa personale (una per utente)
 /newmap - crea nuova mappa (solo per profili avanzati)
 
-/enabledmap+[idmappa] - attiva mappa
+/enablemap+[idmappa] - attiva mappa
 /disabledmap+[idmappa] - disattiva mappa
 /privatemap+[idmappa] - rende mappa privata
 /publicmap+[idmappa] - rende mappa pubblica
