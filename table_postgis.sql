@@ -58,3 +58,36 @@ CREATE TABLE utenti
   username text,
   CONSTRAINT user_pk PRIMARY KEY (user_id)
 );
+
+CREATE OR REPLACE VIEW segnalazioni_v AS 
+ SELECT (('Segnalazione n. '::text || se.bot_request_message) || ' - '::text) || ut.username AS name,
+    se.bot_request_message,
+    se.data_time,
+    ut.first_name,
+    ut.username,
+    se.text_msg,
+    se.file_id,
+    se.file_type,
+    se.file_path,
+    st.stato AS state,
+    mp.name_map AS map,
+    mp.id_map,
+    mp.umap_id,
+    se.geom
+   FROM segnalazioni se
+     JOIN stato st ON se.state = st.id AND st.id > 0 AND st.id < 5
+     JOIN mappe mp ON mp.id_map = se.map AND mp.enabled = true
+     JOIN utenti ut ON se.iduser = ut.user_id;
+	 
+	 CREATE OR REPLACE VIEW topobot_buffer_v AS 
+	  SELECT (('Richiesta n. '::text || se.bot_request_message) || ' - '::text) || ut.username AS name,
+	     se.bot_request_message,
+	     se.data_time,
+	     ut.first_name,
+	     ut.username,
+	     se.text_msg,
+	     ut.distance,
+	     st_buffer(st_makepoint(se.lng, se.lat)::geography, ut.distance::double precision) AS geom
+	    FROM segnalazioni se
+	      JOIN mappe mp ON mp.id_map = se.map AND mp.enabled = true
+	      JOIN utenti ut ON se.iduser = ut.user_id;
