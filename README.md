@@ -16,7 +16,7 @@ To use the system
 - Send Location to it
 - Reply to bot with a text description or image, video, audio, document
 - All data are sent in the database 
-- Data can mapped now
+- Data are mapped now
 
 Rename settings_t_template.php in settings_t.php and put inside
 
