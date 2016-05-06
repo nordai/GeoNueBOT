@@ -6,9 +6,12 @@ OPZIONI AVANZATE
 
 /me - il tuo profilo
 /C+[numero segnalazione] - cancella segnalazione (es: /C001), solo se in stato registrata o sospesa 
-/listmap - lista mappe disponibili
+/maplist - lista mappe disponibili
+<<<<<<< HEAD
+/setmap - imposta mappa da usare
+=======
+>>>>>>> origin/master
 /infomap+[idmappa] - informazioni mappa (es: /infomap1)
-/setmap+[idmappa] - imposta mappa da usare (es: /setmap1)
 /alerton - attiva avvisi (nuove mappe, cancellazione mappe etc..)
 /alertoff - disattiva avvisi
 /webservice - servizi di interoperabilità per consultare e scaricare i dati
@@ -24,7 +27,7 @@ Alla domanda [APPROVI? Y/N] rispondere Y per si, N per no.
 Per approvazione diretta: 
 /A+numrequest - approva (es: /A001)
 /R+numrequest - respingi (es: /R001)
-/S+numrequest - sospendi (es: /T001)
+/S+numrequest - sospendi (es: /S001)
 /C+numrequest - cancella (es: /C001)
 
 
@@ -33,7 +36,18 @@ CREAZIONE E GESTIONE MAPPE
 /mymap - crea mappa personale (una per utente)
 /newmap - crea nuova mappa (solo per profili avanzati)
 
-/enabledmap+[idmappa] - attiva mappa
+<<<<<<< HEAD
+[ Prima di utilizzare queste funzionalità impostare la mappa con /setmap ]
+/enablemap - attiva mappa
+/disabledmap - disattiva mappa
+/privatemap - rende mappa privata
+/publicmap - rende mappa pubblica
+/onapproved - abilita procedura approvazione  
+/offapproved - disabilita procedura approvazione
+/Alist - lista segnalazioni da approvare
+/Slist - lista segnalazioni in sospeso
+=======
+/enablemap+[idmappa] - attiva mappa
 /disabledmap+[idmappa] - disattiva mappa
 /privatemap+[idmappa] - rende mappa privata
 /publicmap+[idmappa] - rende mappa pubblica
@@ -41,6 +55,7 @@ CREAZIONE E GESTIONE MAPPE
 /offapproved+[idmappa] - disabilita procedura approvazione
 /Alist+[idmappa] - lista segnalazioni da approvare
 /Slist+[idmappa] - lista segnalazioni in sospeso
+>>>>>>> origin/master
 
 
 FUNZIONALITA DEDICATE AGLI AMMINISTRATORI

@@ -520,7 +520,7 @@ Tutte le info sono sui server Telegram, mentre in un database locale c'è tracci
 							$reply = "MAPPA n.".$id_map." ".$row[0]['name_map']."\n";
 							$reply .= "[".$shortUrl."]\n\n";
 							
-							$reply .= "Per usarla: /setmap".$id_map."\n\n";
+							$reply .= "Per usarla: /map_".$row[0]['name_map']."\n\n";
 							
 							if ($row[0]['approve'] == 't') {
 								$reply .= "APPROVAZIONE SEGNALAZIONI ABILITATA\n";
@@ -595,7 +595,59 @@ Tutte le info sono sui server Telegram, mentre in un database locale c'è tracci
 				$log=$today. ",me sent," .$sql. "\n";
 					 
 			}
-			// imposta la mappa attiva
+			// fa scegliere la mappa da utilizzare
+			elseif ($text == "/setmap") {
+				
+				$sql =  "SELECT name_map FROM ". DB_TABLE_MAPS ." WHERE enabled=true AND private=false ORDER BY name_map";
+				
+				$ret = pg_query($db, $sql);
+				   if(!$ret){
+				      echo pg_last_error($db);
+				      exit;
+				   } 
+				  
+			    $option = array();
+			    while($res = pg_fetch_row($ret)){
+			    	$option[] = array("/map_". $res[0]);
+			    }	
+			    
+			    $keyb = $telegram->buildKeyBoard($option,$onetime=true);
+          		$content = array('chat_id' => $chat_id, 'reply_markup' => $keyb, 'text' => "[Seleziona la mappa]");
+          		$telegram->sendMessage($content);
+		
+			}
+			// imposta la mappa attiva dal nome
+			elseif (substr($text, 0, 5) == "/map_") {
+				
+				$name_map = substr($text, 5);
+				
+				$map_id = $this->check_name_map($name_map, true);
+				
+				if ($map_id) {
+				
+					$sql = "UPDATE ". DB_TABLE_USER ." SET map = ".$map_id." WHERE user_id = '".$chat_id."'";
+				  	$ret = pg_query($db, $sql);
+					   
+					if(!$ret){
+					   echo pg_last_error($db);
+					   $reply = pg_last_error($db);
+					   exit;
+					} else {	
+						$reply = "Mappa [".$name_map."] impostata.";
+					}
+				}
+				else
+					$reply = "Mappa non presente nel sistema o non attiva.";
+				   
+				$reply_markup = $telegram->buildKeyBoardHide();
+				$content = array('chat_id' => $chat_id, 'text' => $reply, 'reply_markup' => $reply_markup);
+				$telegram->sendMessage($content);
+				$log=$today. ";information for activate map;" .$map_id. "\n";	
+				file_put_contents(LOG_FILE, $log, FILE_APPEND | LOCK_EX);	
+											
+			
+			} 
+			// imposta la mappa attiva da id
 			elseif ((substr($text, 0, 7) == "/setmap") 
 				&& is_numeric(substr($text, 7)) && is_int(intval(substr($text, 7)))) {
 				
@@ -658,7 +710,7 @@ Tutte le info sono sui server Telegram, mentre in un database locale c'è tracci
 							    $reply = "Mappa [".$map_id.". ".$map[1]."] impostata come default.";
 							    $msg = "[INFO] La mappa [".$map_id.". ".$map[1]."] è stata impostata come default.";
 							    $msg .= "\n[".UMAP_URL."/m/".$map[4]."]";
-							    $msg .= "\n\nLa puoi cambiare in qualsiasi momento con il comando /setmap+[idmappa]";
+							    $msg .= "\n\nLa puoi cambiare in qualsiasi momento con il comando /setmap";
 							    $this->alert_usermap($telegram,$msg, $map_id, true);
 							}
 
@@ -671,6 +723,49 @@ Tutte le info sono sui server Telegram, mentre in un database locale c'è tracci
 			    $content = array('chat_id' => $chat_id, 'text' => $reply);
 				$telegram->sendMessage($content);
 				$log=$today. ";information for maps default;" .$map_id. "\n";	
+				file_put_contents(LOG_FILE, $log, FILE_APPEND | LOCK_EX);	
+											
+			
+			}
+			// rendi la mappa privata/pubblica su mappa in uso
+			elseif (($text == "/privatemap" || $text == "/publicmap") && ($this->check_admin($user_id) || $this->check_manager($user_id,$id_map) || $this->check_user_map($user_id,$id_map) )) {
+					
+				if ($this->check_map($id_map, true)) {
+					
+					if ($text == "/privatemap")
+						$private = "true";
+					else
+						$private = "false";
+				
+					$sql = "UPDATE ". DB_TABLE_MAPS ." SET private=".$private." WHERE id_map=".$id_map;
+				  	$ret = pg_query($db, $sql);
+					   
+					if(!$ret){
+					   echo pg_last_error($db);
+					   $reply = pg_last_error($db);
+					   exit;
+					} else {
+						$map = $this->info_map($id_map);
+						if ($text == "/privatemap") {
+							$reply = "Mappa [".$id_map.". ".$map[1]."] impostata come privata.";
+							$msg = "[INFO] La mappa [".$id_map.". ".$map[1]."] è stata resa privata.";
+							$msg .= "\n[".UMAP_URL."/m/".$map[4]."]";
+							$this->alert_usermap($telegram,$msg, $id_map, true);
+						}
+						else {
+							$reply = "Mappa [".$id_map.". ".$map[1]."] impostata come pubblica.";
+							$msg = "[INFO] La mappa [".$id_map.". ".$map[1]."] è stata resa pubblica.";
+							$msg .= "\n[".UMAP_URL."/m/".$map[4]."]";
+							$this->alert_usermap($telegram,$msg, $id_map, true);
+						}
+					}
+				}
+				else
+					$reply = "Mappa non presente nel sistema o non attiva.";
+				   
+			    $content = array('chat_id' => $chat_id, 'text' => $reply);
+				$telegram->sendMessage($content);
+				$log=$today. ";information for maps default;" .$id_map. "\n";	
 				file_put_contents(LOG_FILE, $log, FILE_APPEND | LOCK_EX);	
 											
 			
@@ -743,6 +838,56 @@ Tutte le info sono sui server Telegram, mentre in un database locale c'è tracci
 											
 			
 			}
+			// attiva/disattiva mappa in uso
+			elseif (($text == "/enablemap" || $text == "/disabledmap") && ($this->check_admin($user_id) || $this->check_manager($user_id,$id_map) || $this->check_user_map($user_id,$id_map) )) {
+				
+				if ($this->check_map($id_map, false)) {
+					
+						if ($text == "/enablemap")
+							$enabled = "true";
+						else
+							$enabled = "false";
+				
+						$sql = "UPDATE ". DB_TABLE_MAPS ." SET enabled=".$enabled." WHERE id_map=".$id_map;
+				  		$ret = pg_query($db, $sql);
+						if(!$ret){
+						   echo pg_last_error($db);
+						   $reply = pg_last_error($db);
+						   exit;
+						} else {
+							$map = $this->info_map($id_map);
+							    
+							if ($text == "/enablemap") {
+						    	if ($map[6] == "f") {
+								    $msg = "[INFO] E' stata attivata la mappa ".$id_map.". ".$map[1];
+								    $msg .= "\n[".UMAP_URL."/m/".$map[4]."]";
+								    $msg .= "\n\nSe la vuoi utilizzare: /map_".$map[1];
+								    $this->alert_usermap($telegram, $msg, $id_map, true);
+							    }
+							    
+							    $reply = "Mappa [".$id_map.". ".$map[1]."] attivata.";
+							}
+						    else {
+						    	$reply = "Mappa [".$id_map.". ".$map[1]."] disattivata.";
+								$msg = "[INFO] La mappa [".$id_map.". ".$map[1]."] è stata disattivata.";
+								$this->alert_usermap($telegram, $msg, $id_map);		
+								$default_id = $this->check_defaultmap();
+								$sql2 = "UPDATE ". DB_TABLE_USER ." SET map=".$default_id. " WHERE map=".$id_map;
+						  		$ret2 = pg_query($db, $sql2);
+						    }
+						}
+						
+				}
+				else
+					$reply = "Mappa non presente nel sistema";
+				   
+			    $content = array('chat_id' => $chat_id, 'text' => $reply);
+				$telegram->sendMessage($content);
+				$log=$today. ";information for activate map;" .$id_map. "\n";	
+				file_put_contents(LOG_FILE, $log, FILE_APPEND | LOCK_EX);	
+											
+			
+			}
 			// attiva mappa
 			elseif ((substr($text, 0, 10) == "/enablemap") 
 				&& is_numeric(substr($text, 10)) && is_int(intval(substr($text, 10))) 
@@ -763,7 +908,7 @@ Tutte le info sono sui server Telegram, mentre in un database locale c'è tracci
 						    if ($map[6] == "f") {
 							    $msg = "[INFO] E' stata attivata la mappa ".$map_id.". ".$map[1];
 							    $msg .= "\n[".UMAP_URL."/m/".$map[4]."]";
-							    $msg .= "\n\nSe la vuoi utilizzare: /setmap".$map_id;
+							    $msg .= "\n\nSe la vuoi utilizzare: /map_".$map[1];
 							    $this->alert_usermap($telegram, $msg, $map_id, true);
 						    }
 						    
@@ -1007,7 +1152,7 @@ $reply .= "MAPPA ATTIVA NEL BOT
 				$telegram->sendMessage($content);		
 				
 			}
-			// attiva/disattiva la funzionalità di approvazione delle segnalazioni della mappa attiva
+			// attiva/disattiva la funzionalità di approvazione delle segnalazioni della mappa in uso
 			elseif (($text == "/offapproved" || $text == "/onapproved") && ($this->check_admin($user_id) || $this->check_manager($user_id,$id_map) || $this->check_user_map($user_id,$id_map) )) {
 				
 				if ($text == "/onapproved") {
@@ -1186,7 +1331,7 @@ $reply .= "MAPPA ATTIVA NEL BOT
 			    $response=$telegram->getData();
 			    $text = strtolower($this->clean($response["message"]["text"]));
 			    
-			    if ($this->check_name_map($text)) {
+			    if ($this->check_name_map($text,false)) {
 			    	$reply = "Il nome [".$text."] è già presente, usane un'altro";
 			    	$content = array('chat_id' => $chat_id, 'text' => $reply,'disable_web_page_preview'=>true);
 					$telegram->sendMessage($content);
@@ -1345,13 +1490,13 @@ Per vedere le segnalazioni in mappa: ".$shortUrl."
 OPZIONI AVANZATE
 
 /me - il tuo profilo
-/C+[numero segnalazione] - cancella segnalazione (es: /C001), solo se in stato registrata o sospesa 
 /maplist - lista mappe disponibili
-/infomap+[idmappa] - informazioni mappa (es: /infomap1)
-/setmap+[idmappa] - imposta mappa da usare (es: /setmap1)
+/setmap - imposta la mappa da usare
 /alerton - attiva avvisi (nuove mappe, cancellazione mappe etc..)
 /alertoff - disattiva avvisi
 /webservice - servizi di interoperabilità per consultare e scaricare i dati
+
+/C+[numero segnalazione] - cancella segnalazione (es: /C001), solo se in stato registrata o sospesa 
 
 /manager - funzionalità dedicate per gestione mappe"	
 	          );
@@ -1379,14 +1524,15 @@ CREAZIONE E GESTIONE MAPPE
 /mymap - crea mappa personale (una per utente)
 /newmap - crea nuova mappa (solo per profili avanzati)
 
-/enablemap+[idmappa] - attiva mappa
-/disabledmap+[idmappa] - disattiva mappa
-/privatemap+[idmappa] - rende mappa privata
-/publicmap+[idmappa] - rende mappa pubblica
-/onapproved+[idmappa] - abilita procedura approvazione  
-/offapproved+[idmappa] - disabilita procedura approvazione
-/Alist+[idmappa] - lista segnalazioni da approvare
-/Slist+[idmappa] - lista segnalazioni in sospeso
+[ Prima di utilizzare queste funzionalità impostare la mappa con /setmap ]
+/enablemap - attiva mappa
+/disabledmap - disattiva mappa
+/privatemap - rende mappa privata
+/publicmap - rende mappa pubblica
+/onapproved - abilita procedura approvazione  
+/offapproved - disabilita procedura approvazione
+/Alist - lista segnalazioni da approvare
+/Slist - lista segnalazioni in sospeso
 
 "			
 			          );
@@ -1415,7 +1561,7 @@ CREAZIONE E GESTIONE MAPPE
 			}   				 
 			//comando errato
 			else{
-				 $reply = "Hai selezionato un comando non previsto";
+				 $reply = "Hai selezionato un comando non previsto o non hai le autorizzazioni per poterlo utilizzare";
 				 $content = array('chat_id' => $chat_id, 'text' => $reply);
 				 $telegram->sendMessage($content);
 				 $log=$today. ";wrong command sent;" .$chat_id. "\n";
@@ -1708,7 +1854,7 @@ CREAZIONE E GESTIONE MAPPE
 	
 		}
 		
-		//check per verificare se esiste la mappa
+		//check per verificare se esiste la mappa tramite l'id
 		function check_map($id_map, $enabled){
 			
 			$db = $this->getdb();
@@ -1727,6 +1873,37 @@ CREAZIONE E GESTIONE MAPPE
 		   
 		   if (pg_num_rows($ret))
 		   	return true;
+		   else
+		    return false;
+	
+		   pg_close($db);
+
+		}
+		
+		//check per verificare se esiste la mappa tramite il nome
+		function check_name_map($name_map, $enabled){
+			
+			$db = $this->getdb();
+			if ($enabled)
+				$enabled = "enabled = true and ";
+			else
+				$enabled = "";
+				
+		    $sql =  "SELECT * FROM ". DB_TABLE_MAPS ." WHERE ".$enabled." name_map='".$name_map."'";
+			$ret = pg_query($db, $sql);
+			
+		   if(!$ret){
+		      echo pg_last_error($db);
+		      return false;
+		   }
+		   
+		   if (pg_num_rows($ret)) {
+		   	while($res = pg_fetch_row($ret)){
+			 	if(!isset($res[0])) continue;
+			   		return $res[0];
+			}	
+		//   	return true;
+		   }
 		   else
 		    return false;
 	
@@ -1758,29 +1935,6 @@ CREAZIONE E GESTIONE MAPPE
 			   		return $res;
 			}			
 			
-		}
-		
-		//check per verificare se esiste il nome della mappa
-		function check_name_map($name_map){
-			
-			$db = $this->getdb();
-			
-				
-		    $sql =  "SELECT * FROM ". DB_TABLE_MAPS ." WHERE name_map='".$name_map."'";
-			$ret = pg_query($db, $sql);
-			
-		   if(!$ret){
-		      echo pg_last_error($db);
-		      return false;
-		   }
-		   
-		   if (pg_num_rows($ret))
-		   	return true;
-		   else
-		    return false;
-	
-		   pg_close($db);
-
 		}
 		
 		// recupera le info della mappa di umap
