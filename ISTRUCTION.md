@@ -7,10 +7,7 @@ OPZIONI AVANZATE
 /me - il tuo profilo
 /C+[numero segnalazione] - cancella segnalazione (es: /C001), solo se in stato registrata o sospesa 
 /maplist - lista mappe disponibili
-<<<<<<< HEAD
 /setmap - imposta mappa da usare
-=======
->>>>>>> origin/master
 /infomap+[idmappa] - informazioni mappa (es: /infomap1)
 /alerton - attiva avvisi (nuove mappe, cancellazione mappe etc..)
 /alertoff - disattiva avvisi
@@ -36,7 +33,6 @@ CREAZIONE E GESTIONE MAPPE
 /mymap - crea mappa personale (una per utente)
 /newmap - crea nuova mappa (solo per profili avanzati)
 
-<<<<<<< HEAD
 [ Prima di utilizzare queste funzionalità impostare la mappa con /setmap ]
 /enablemap - attiva mappa
 /disabledmap - disattiva mappa
@@ -46,16 +42,6 @@ CREAZIONE E GESTIONE MAPPE
 /offapproved - disabilita procedura approvazione
 /Alist - lista segnalazioni da approvare
 /Slist - lista segnalazioni in sospeso
-=======
-/enablemap+[idmappa] - attiva mappa
-/disabledmap+[idmappa] - disattiva mappa
-/privatemap+[idmappa] - rende mappa privata
-/publicmap+[idmappa] - rende mappa pubblica
-/onapproved+[idmappa] - abilita procedura approvazione  
-/offapproved+[idmappa] - disabilita procedura approvazione
-/Alist+[idmappa] - lista segnalazioni da approvare
-/Slist+[idmappa] - lista segnalazioni in sospeso
->>>>>>> origin/master
 
 
 FUNZIONALITA DEDICATE AGLI AMMINISTRATORI
