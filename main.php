@@ -97,8 +97,8 @@ class mainloop{
 Con GeoNueBOT puoi usare più mappe, per vedere la lista di quelle disponibili digita /maplist e attiva quella che preferisci.
 
 Mappa in uso: ".$id_map.". ".$name_map."
-
 Per vedere le segnalazioni in mappa: ".$shortUrl."
+Per cambiare mappa: /setmap
 								
 In qualsiasi momento scrivendo /start ti ripeterò questo messaggio di benvenuto. Per le funzionalità avanzate scrivi /help.
 
@@ -605,11 +605,21 @@ Tutte le info sono sui server Telegram, mentre in un database locale c'è tracci
 				      echo pg_last_error($db);
 				      exit;
 				   } 
-				  
+				
+				$row = array();  
 			    $option = array();
+			    $i=1;
 			    while($res = pg_fetch_row($ret)){
-			    	$option[] = array("/map_". $res[0]);
+			    	if (($i % 3) == 0) {
+			    		array_push($option, $row);
+			    		$row = array();
+			    		$i++;
+			    	}
+			    	array_push($row, "/map_". $res[0]);
+			    	$i++;
 			    }	
+			    if (count($row))
+			    	array_push($option, $row);
 			    
 			    $keyb = $telegram->buildKeyBoard($option,$onetime=true);
           		$content = array('chat_id' => $chat_id, 'reply_markup' => $keyb, 'text' => "[Seleziona la mappa]");
@@ -1483,16 +1493,17 @@ $reply .= "MAPPA ATTIVA NEL BOT
 Per inviare una segnalazione, clicca [Invia posizione] dall'icona a forma di graffetta e aspetta una decina di secondi. Quando ricevi la risposta automatica, puoi scrivere un testo descrittivo o allegare un contenuto video foto audio ect.
 
 Mappa in uso: ".$id_map.". ".$name_map."
-
 Per vedere le segnalazioni in mappa: ".$shortUrl."
+
+Lista mappe disponibili: /maplist
+Per cambiare mappa: /setmap
+
+Il tuo profilo: /me
 
 
 OPZIONI AVANZATE
 
-/me - il tuo profilo
-/maplist - lista mappe disponibili
-/setmap - imposta la mappa da usare
-/alerton - attiva avvisi (nuove mappe, cancellazione mappe etc..)
+/alerton - attiva avvisi
 /alertoff - disattiva avvisi
 /webservice - servizi di interoperabilità per consultare e scaricare i dati
 
