@@ -276,7 +276,7 @@ Tutte le info sono sui server Telegram, mentre in un database locale c'è tracci
 			}	
 			// modifica stato segnalazioni
 			elseif ((substr($text, 0, 2) == "/A" || substr($text, 0, 2) == "/R" || substr($text, 0, 2) == "/C" || substr($text, 0, 2) == "/S")
-				&& is_numeric(substr($text, 2)) && is_int(intval(substr($text, 2))) && $this->check_admin($user_id)) {
+				&& is_numeric(substr($text, 2)) && is_int(intval(substr($text, 2))) ) {
 					
 				
 				$this->mod_state($telegram,$chat_id,substr($text, 0, 2),substr($text, 2));
@@ -2078,11 +2078,17 @@ CREAZIONE E GESTIONE MAPPE
 			    		$i++;
 			    }
 			    
-			    if ((!$this->check_admin($user_id) || 
-			    	!$this->check_manager($user_id, $row[0]['map'])) && 
-			        strtoupper($text) == '/C' &&
+			    $check_temp = true;
+			    if (strtoupper($text) == '/C' &&
 			        $row[0]['iduser'] != $chat_id &&
 			    	($row[0]['state'] == 2 || $row[0]['state'] == 3 || $row[0]['state'] == 5)) {
+			    	$check_temp = false;
+				}
+				else if (($this->check_admin($user_id) || $this->check_user_map($user_id, $row[0]['map']))) {
+					$check_temp = false;
+				}
+				
+				if ($check_temp) {
 					$reply = "Operazione su segnalazione [".$id_bot_msg."] non consentita.";
 				 	$content = array('chat_id' => $chat_id, 'text' => $reply);
 					$telegram->sendMessage($content);
